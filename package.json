@@ -1,8 +1,33 @@
 {
   "name": "@angel-gp/dsh-client-ui-gitpeek",
   "version": "0.1.0",
-  "private": true,
+  "description": "只读的 GitHub 数据查看面板：Actions 运行、Commits、Releases 三列并排，作为 DSH 会话的第三个标签页。",
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "github",
+    "actions",
+    "releases",
+    "commits",
+    "ui",
+    "cordis"
+  ],
+  "author": "Angel-GP",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Angel-GP/dsh-gitpeek.git"
+  },
+  "homepage": "https://github.com/Angel-GP/dsh-gitpeek#readme",
+  "bugs": {
+    "url": "https://github.com/Angel-GP/dsh-gitpeek/issues"
+  },
+  "engines": {
+    "node": ">=22.19"
+  },
   "type": "module",
+  "packageManager": "pnpm@11.7.0",
   "main": "lib/index.js",
   "exports": {
     ".": {
@@ -11,12 +36,26 @@
     "./client": {
       "default": "./lib/client.js"
     },
+    "./cordis.patch.yml": "./cordis.patch.yml",
     "./package.json": "./package.json"
   },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "LICENSE"
+  ],
   "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
     "client": {
       "inject": [],
       "platform": "web"
     }
-  }
+  },
+  "peerDependencies": {
+    "react": "^18.2.0"
+  },
+  "license": "MIT"
 }
