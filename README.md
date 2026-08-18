@@ -1,10 +1,10 @@
-# dsh-gitpeek
+# @angel-gp/dsh-client-ui-gitpeek
 
 一个只读的 GitHub 数据查看面板，作为 DSH 会话的第三个标签页（紧跟「轨迹」之后），展示 Actions 运行、Commits、Releases 三列数据。
 
 ## 这是什么
 
-这是一个 **DSH（DeepSeek Harness）静态客户端插件**。它只能在 DSH 里运行——依赖 DSH 的模块加载器（`window.__ModuleLoader__`）、`slots` 服务和 `conversation.view` 插槽，不能独立作为普通网页插件使用。
+这是一个 **DSH（DeepSeek Harness）静态客户端 UI 插件**。它只能在 DSH 里运行——依赖 DSH 的模块加载器（`window.__ModuleLoader__`）、`slots` 服务和 `conversation.view` 插槽，不能独立作为普通网页插件使用。
 
 ## 文件
 
@@ -34,8 +34,8 @@ dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 
 ```yaml
 - insert:
-    - id: ghwf
-      name: 'dsh-gitpeek'
+    - id: gitpeek
+      name: '@angel-gp/dsh-client-ui-gitpeek'
 ```
 
 重启 DSH 进程。
@@ -45,7 +45,7 @@ dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 1. 把本文件夹整个复制到 profile 依赖目录：
 
    ```
-   <DSH_HOME>/profiles/web/node_modules/dsh-gitpeek/
+   <DSH_HOME>/profiles/web/node_modules/@angel-gp/dsh-client-ui-gitpeek/
    ```
 
    （`<DSH_HOME>` 默认是 `~/.dsh`，Windows 上是 `C:\Users\<用户>\.dsh`）
@@ -54,8 +54,8 @@ dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 
    ```yaml
    - insert:
-       - id: ghwf
-         name: 'dsh-gitpeek'
+       - id: gitpeek
+         name: '@angel-gp/dsh-client-ui-gitpeek'
    ```
 
 3. 重启 DSH 进程。
