@@ -10,11 +10,32 @@
 
 ## 安装
 
+### 方式一：命令行
+
 ```bash
 dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 ```
 
 重启 DSH 进程即可。
+
+### 方式二：让 DSH 的 agent 安装
+
+在 DSH 里对 agent 说：
+
+> 帮我安装 GitHub 面板插件：执行 `dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git`，然后重启 DSH。
+
+## 获取 PAT token
+
+插件用 PAT 提升 GitHub API 读取额度（匿名 60 次/小时，带 token 5000 次/小时）。只读查询，权限最小化即可：
+
+1. 打开 https://github.com/settings/personal-access-tokens/new
+2. 选 **Fine-grained token**
+3. **Repository access** 选 **Only select repositories**，勾选你要查看的仓库
+4. **Permissions** 里给：
+   - **Actions → Read-only**（读 workflow runs）
+   - **Contents → Read-only**（读 releases、commits）
+   - **Metadata → Read-only**（通常自动包含）
+5. 生成后把 token 粘贴到插件的「PAT」输入框
 
 ## License
 
