@@ -8,21 +8,42 @@
 - 记忆多个仓库地址 + 单个 PAT token（存浏览器 localStorage）
 - 缓存不过期：打开直接显示缓存，点「刷新」才重新拉取
 
-## 安装
+## 第一次使用：三步完成
 
-### 方式一：命令行
+### 1. 安装插件
 
-```bash
-dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
+**让 Agent 安装（推荐）**
+
+如果当前 Agent 可以执行终端命令，把下面这段话完整发送给它：
+
+> 请为 DeepSeek Harness 的 web Profile 安装 gitpeek 插件。
+>
+> 只执行下面两条命令，不要修改其他 Profile：
+> ```
+> dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
+> dsh --profile web --dump-config
+> ```
+> 确认输出中出现 `@angel-gp/dsh-client-ui-gitpeek` 后告诉我安装结果。
+> 不要替我关闭或重启正在运行的 DSH；安装完成后提醒我手动重启 DSH Web Host。
+
+Agent 应当返回安装结果，并明确告诉你配置中是否已经出现 `@angel-gp/dsh-client-ui-gitpeek`。
+
+**手动安装**
+
+也可以自己打开 PowerShell 执行：
+
+```
+dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
+dsh --profile web --dump-config
 ```
 
-重启 DSH 进程即可。
+### 2. 验证
 
-### 方式二：让 DSH 的 agent 安装
+确认 `--dump-config` 的输出中出现 `@angel-gp/dsh-client-ui-gitpeek`，说明插件已进入组合层。
 
-在 DSH 里对 agent 说：
+### 3. 重启
 
-> 帮我安装 GitHub 面板插件：执行 `dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git`，然后重启 DSH。
+手动重启 DSH Web Host。重启后 GitHub 标签页会出现在「轨迹」旁边。
 
 ## 获取 PAT token
 
