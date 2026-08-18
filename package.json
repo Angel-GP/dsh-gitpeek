@@ -1,5 +1,5 @@
 {
-  "name": "@deepseek-ai/dsh-client-ghwf",
+  "name": "dsh-gitpeek",
   "version": "0.1.0",
   "private": true,
   "type": "module",
