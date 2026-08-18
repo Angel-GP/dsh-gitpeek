@@ -1,5 +1,5 @@
 {
-  "name": "dsh-gitpeek",
+  "name": "@angel-gp/dsh-client-ui-gitpeek",
   "version": "0.1.0",
   "private": true,
   "type": "module",
