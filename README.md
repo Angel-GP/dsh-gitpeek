@@ -1,7 +1,6 @@
 # @angel-gp/dsh-client-ui-gitpeek
 
-只读的 GitHub 数据查看面板，作为 DSH 会话的第三个标签页（紧跟「轨迹」之后），展示 Actions 运行、Commits、Releases 三列数据。<img width="2140" height="1348" alt="image" src="https://github.com/user-attachments/assets/e6be0c61-8cb3-4960-b9bd-92e66d91327f" />
-
+只读的 GitHub 数据查看面板，作为 DSH 会话的第三个标签页（紧跟「轨迹」之后），展示 Actions 运行、Commits、Releases 三列数据。
 
 ## 功能
 
