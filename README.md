@@ -6,12 +6,6 @@
 
 这是一个 **DSH（DeepSeek Harness）静态客户端 UI 插件**。它只能在 DSH 里运行——依赖 DSH 的模块加载器（`window.__ModuleLoader__`）、`slots` 服务和 `conversation.view` 插槽，不能独立作为普通网页插件使用。
 
-## 文件
-
-- `package.json` — 包清单，声明 `dsh.client`（`platform: web`、`inject: []`）
-- `lib/index.js` — 空宿主入口（宿主侧无行为）
-- `lib/client.js` — 浏览器 bundle（三列 UI + localStorage 缓存 + 首次自动拉取）
-
 ## 功能
 
 - 只读展示：Actions 运行、Commits、Releases（无任何写操作）
@@ -30,15 +24,7 @@
 dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 ```
 
-然后在 `<DSH_HOME>/profiles/web/cordis.patch.yml` 加一行 insert：
-
-```yaml
-- insert:
-    - id: gitpeek
-      name: '@angel-gp/dsh-client-ui-gitpeek'
-```
-
-重启 DSH 进程。
+本插件声明了 `dsh.bundle`，`dsh plugin add` 会自动把它加入 profile 的组合层，**无需手动加 insert 行**。重启 DSH 进程即可。
 
 ### 方式二：手动复制
 
@@ -60,12 +46,16 @@ dsh plugin --profile web add git+https://github.com/Angel-GP/dsh-gitpeek.git
 
 3. 重启 DSH 进程。
 
-## 为什么必须手动加 insert 行
+## 为什么声明 dsh.bundle
 
-DSH 的组合（composition）由 `cordis.patch.yml` 决定哪些插件被加载。`dsh plugin add` 只负责把包装进 `node_modules`；只有包名出现在组合里，loader 才会加载它，DSH 的客户端模块系统才会扫描到它的 `dsh.client` 声明并注入浏览器。
+DSH 的组合（composition）由 `cordis.patch.yml` 决定哪些插件被加载。`dsh plugin add` 只负责把包装进 `node_modules`；只有包名出现在组合里，loader 才会加载它。
 
-因为本插件是 `dsh.client`（纯客户端）而非 `dsh.bundle`（带 patch 的 bundle），`dsh plugin add` 不会自动把它加进组合，所以 insert 行必须手动写。
+声明 `dsh.bundle`（`package.json` 的 `dsh.bundle.patch` 指向自带的 `cordis.patch.yml`）后，`dsh plugin` 的 reconcile 逻辑会检测到该声明并自动把包加入 profile 的组合层，用户无需手动加 insert 行。
 
 ## 配置
 
 配置存浏览器 `localStorage`（键 `dsh.ghwf.config` / `dsh.ghwf.cache`），不落盘到工作区，token 不写明文文件。
+
+## License
+
+MIT
