@@ -1,0 +1,4 @@
+# @angel-gp/dsh-client-ui-gitpeek bundle patch: mounts the plugin into a profile layer stack.
+- insert:
+    - id: gitpeek
+      name: '@angel-gp/dsh-client-ui-gitpeek'
