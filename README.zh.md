@@ -7,8 +7,10 @@
 ## 功能
 
 - 三列并排，各自独立滚动
-- 记忆多个仓库地址 + 单个 PAT token（存浏览器 `localStorage`）
-- 缓存不过期：打开会话直接显示缓存，点「刷新」才重新拉取
+- 记忆多个仓库地址 + 单个 PAT token：存入前先用 **AES-256-GCM**（Web Crypto）加密，`localStorage` 里不再有明文；密钥留在同一浏览器中
+- 加载更多：每列通过 GitHub `Link` 响应头分页，带「加载更多」按钮（每页 30 条 runs / 30 条 releases / 100 条 commits）
+- 进入自动刷新：打开会话先秒显缓存，再后台自动拉取一次——重启后不会停留在旧数据
+- 缓存不过期：打开会话直接显示缓存，点「刷新」或进入会话时才重新拉取
 - 国际化：界面文案随 DSH 语言偏好（zh / en）切换
 - 三列数据并行拉取，任一接口失败单独提示，互不影响
 
@@ -99,13 +101,15 @@ dsh --profile web --dump-config
 
 插件把配置和缓存存在浏览器 `localStorage`，卸载后**不会**自动清理：
 
-- `dsh.ghwf.config` —— **含明文 PAT token**（务必清除）
+- `dsh.ghwf.config` —— **加密后的 PAT token**
+- `dsh.ghwf.key` —— 解密所需的 AES-GCM 密钥（务必与 config 一起清除）
 - `dsh.ghwf.cache` —— 缓存的 Actions / Commits / Releases 数据
 
 在 DSH 网页里打开 DevTools（F12）→ Console 执行：
 
 ```js
 localStorage.removeItem("dsh.ghwf.config");
+localStorage.removeItem("dsh.ghwf.key");
 localStorage.removeItem("dsh.ghwf.cache");
 ```
 
@@ -132,7 +136,7 @@ pnpm store prune
 
 ### 安全提示
 
-PAT 以明文保存在浏览器 `localStorage`，任何能访问该浏览器（扩展、开发者工具、同源脚本、同一 Profile 的其他使用者）的人都能读到它。请：
+PAT 先经 AES-256-GCM 加密再存储。加密密钥保留在同一个浏览器（`localStorage` 里的随机 32 字节），因此存储值不是明文——但任何能在这台浏览器里运行脚本的东西（扩展、开发者工具、同源脚本）仍能解密它。请：
 
 - 只授予「只读 + 选定仓库」的最小权限（见上文）；
 - 不要把这个 token 用于其他服务或账号操作；
@@ -161,9 +165,9 @@ node --check lib/client.js
 
 ## 已知限制与暂缓事项
 
-- **PAT 明文存 localStorage**：本地只读面板的刻意取舍，尚未接入 `dsh-credentials`（见上文安全提示）。
-- **每列固定窗口**：最多 30 条 runs、30 条 releases、100 条 commits，无分页 /「加载更多」。
-- **缓存永不过期**：点「刷新」前一直显示缓存数据，面板可能短暂落后于仓库实时状态。
+- **AES-GCM 密钥与密文同浏览器**：加密密钥和密文存在同一浏览器里，方案能防「明文泄露」，但防不了同源脚本访问（扩展、XSS）。要彻底解决需把插件重构为动态 Cordis 插件并接入 host 侧 `dsh-credentials`——v2 方向。
+- **每列分页窗口**：每页 30 条 runs / 30 条 releases / 100 条 commits，每列有「加载更多」按钮；不会一次拉全量。
+- **仅进入会话时自动刷新**：数据在打开会话和手动点「刷新」时更新，不做持续轮询。
 
 ## License
 

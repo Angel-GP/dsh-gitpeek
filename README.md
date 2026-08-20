@@ -10,9 +10,15 @@ browser.
 ## Features
 
 - Three columns side by side, each scrolling independently
-- Remembers multiple repositories plus one PAT token (kept in browser `localStorage`)
+- Remembers multiple repositories plus one PAT token, encrypted with
+  **AES-256-GCM** (Web Crypto) before it touches `localStorage` — the key
+  stays in the browser, so the stored value is never plain text
+- Load more: each column paginates through GitHub's `Link` header with a
+  **Load more** button (30 runs / 30 releases / 100 commits per page)
+- Auto-refresh on entry: cached data shows immediately, then a background
+  refresh runs once per session open — no stale page after a restart
 - Stale cache by design: opening a session shows the cached data immediately;
-  data is re-fetched only when you click **Refresh**
+  data is re-fetched only when you click **Refresh** or on session entry
 - Localized UI (zh / en) following the DSH language preference
 - The three columns are fetched in parallel; a failure in one column is
   reported individually and does not hide the other two
@@ -136,13 +142,15 @@ composition reloads — this is what actually removes it from the running GUI.
 The plugin stores its config and cache in the browser's `localStorage` and
 does **not** clean them up on uninstall:
 
-- `dsh.ghwf.config` — includes the PAT token in plain text (remove this!)
+- `dsh.ghwf.config` — holds the encrypted PAT token plus the encryption key
+  `dsh.ghwf.key` (remove both!)
 - `dsh.ghwf.cache` — cached Actions / Commits / Releases data
 
 Open DevTools (F12) in the DSH page and run:
 
 ```js
 localStorage.removeItem("dsh.ghwf.config");
+localStorage.removeItem("dsh.ghwf.key");
 localStorage.removeItem("dsh.ghwf.cache");
 ```
 
@@ -174,9 +182,11 @@ permissions minimal:
 
 ### Security note
 
-The PAT is stored in plain text in `localStorage`; anything that can read that
-browser (extensions, devtools, same-origin scripts, another user of the same
-profile) can read it. Please:
+The PAT is encrypted with AES-256-GCM before storage. The encryption key is
+kept in the same browser (as a random 32-byte value in `localStorage`), so the
+stored token is not readable as plain text — but anything that can run
+JavaScript in that browser (extensions, devtools, same-origin scripts) can
+still decrypt it. Please:
 
 - grant only the minimal **read-only + selected repositories** permissions (above);
 - never reuse this token for other services or account operations;
@@ -211,13 +221,15 @@ None; the package neither assembles nor sends provider requests.
 
 ## Known limitations and deferred items
 
-- **PAT stored in plain text in `localStorage`**: a conscious trade-off for a
-  local read-only panel; no `dsh-credentials` integration yet (see the
-  security note above).
-- **Fixed window per column**: at most 30 runs, 30 releases, and 100 commits,
-  with no pagination / "load more".
-- **Cache never expires**: cached data is shown until **Refresh** is clicked,
-  so the panel can briefly lag behind the live repository.
+- **AES-GCM key stored next to the ciphertext**: the encryption key lives in
+  the same browser as the encrypted token, so the scheme prevents *plain-text*
+  leakage but not same-origin script access (extensions, XSS). A host-side
+  credential store (`dsh-credentials`) would require restructuring the plugin
+  as a dynamic Cordis plugin — a v2 direction.
+- **Paged window per column**: 30 runs, 30 releases, and 100 commits per page,
+  with a **Load more** button per column; no "load everything at once".
+- **Auto-refresh only on session entry**: data is refreshed when a session is
+  opened and on explicit **Refresh** clicks; it does not poll continuously.
 
 ## License
 
