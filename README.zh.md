@@ -142,33 +142,6 @@ PAT 先经 AES-256-GCM 加密再存储。加密密钥保留在同一个浏览器
 - 不要把这个 token 用于其他服务或账号操作；
 - 不再需要时，随时在 GitHub 上撤销或轮换它。
 
-## 开发
-
-```bash
-# 安装依赖（类型检查 / 本地开发）
-pnpm install
-
-# 语法检查
-node --check lib/index.js
-node --check lib/client.js
-```
-
-`lib/client.js` 是浏览器端插件入口（`window.__ModuleLoader__.load` 产物格式，不含 JSX / TypeScript，按 DSH client 插件约束手写）；`lib/index.js` 是 Host 侧空入口。`cordis.patch.yml` 声明本包作为 profile bundle patch 的挂载方式。界面文案集中在 `lib/client.js` 顶部的 `zh` / `en` 词典中，新增文案请同步维护两个词典。
-
-## 模型体验
-
-无。该面板在浏览器中渲染 GitHub 数据；本包没有任何内容进入模型请求。
-
-#### KV Cache 影响
-
-无；该包既不组装也不发送提供方请求。
-
-## 已知限制与暂缓事项
-
-- **AES-GCM 密钥与密文同浏览器**：加密密钥和密文存在同一浏览器里，方案能防「明文泄露」，但防不了同源脚本访问（扩展、XSS）。要彻底解决需把插件重构为动态 Cordis 插件并接入 host 侧 `dsh-credentials`——v2 方向。
-- **每列分页窗口**：每页 30 条 runs / 30 条 releases / 100 条 commits，每列有「加载更多」按钮；不会一次拉全量。
-- **仅进入会话时自动刷新**：数据在打开会话和手动点「刷新」时更新，不做持续轮询。
-
 ## License
 
 MIT

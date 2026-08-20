@@ -192,45 +192,6 @@ still decrypt it. Please:
 - never reuse this token for other services or account operations;
 - revoke or rotate it from GitHub whenever it is no longer needed.
 
-## Development
-
-```bash
-# Install dependencies (type-checking / local development)
-pnpm install
-
-# Syntax checks
-node --check lib/index.js
-node --check lib/client.js
-```
-
-`lib/client.js` is the browser-side plugin entry (the
-`window.__ModuleLoader__.load` artifact format — no JSX / TypeScript, hand
-written to the DSH client-plugin constraints); `lib/index.js` is the empty
-host-side entry. `cordis.patch.yml` declares how the package mounts as a
-profile bundle patch. UI strings live in the `zh` / `en` dictionaries at the
-top of `lib/client.js`; keep both dictionaries in sync when adding copy.
-
-## Model experience
-
-None. The panel renders GitHub data in the browser; nothing from this package
-enters a model request.
-
-#### KV Cache impact
-
-None; the package neither assembles nor sends provider requests.
-
-## Known limitations and deferred items
-
-- **AES-GCM key stored next to the ciphertext**: the encryption key lives in
-  the same browser as the encrypted token, so the scheme prevents *plain-text*
-  leakage but not same-origin script access (extensions, XSS). A host-side
-  credential store (`dsh-credentials`) would require restructuring the plugin
-  as a dynamic Cordis plugin — a v2 direction.
-- **Paged window per column**: 30 runs, 30 releases, and 100 commits per page,
-  with a **Load more** button per column; no "load everything at once".
-- **Auto-refresh only on session entry**: data is refreshed when a session is
-  opened and on explicit **Refresh** clicks; it does not poll continuously.
-
 ## License
 
 MIT
