@@ -14,6 +14,12 @@
 
 ## 安装
 
+### 0. 前置条件
+
+- `dsh` 和 `pnpm` 在 PATH 中（DSH Desktop 自带，重新开一个 PowerShell 即可生效）。
+- `git` 在 PATH 中且能访问 github.com。`dsh plugin` 内部转发给 pnpm，pnpm 会从 `github:` specifier 克隆仓库——走 HTTPS，或配置好 SSH（`insteadOf` 重写 / 代理）后走 SSH。
+- 弄清楚你正在运行的 DSH 用的是哪个 profile。插件装进命令里指定的那个 profile，只有运行**同一个 profile** 的 GUI 才会显示它。**DSH Desktop 默认是 `desktop` profile**，和 `web` 是不同的组合——要么装进你实际运行的 profile，要么把 GUI 切换到你要安装的 profile。
+
 ### 1. 安装插件
 
 **让 Agent 安装（推荐）**
@@ -30,7 +36,7 @@
 > 确认输出中出现 `@angel-gp/dsh-client-ui-gitpeek` 后告诉我安装结果。
 > 不要替我关闭或重启正在运行的 DSH；安装完成后提醒我手动重启 DSH Web Host。
 
-Agent 应当返回安装结果，并明确告诉你配置中是否已经出现 `@angel-gp/dsh-client-ui-gitpeek`。
+把其中的 `web` 换成你的 GUI 实际运行的 profile（DSH Desktop 通常是 `desktop`）。
 
 **手动安装**
 
@@ -41,13 +47,27 @@ dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
 dsh --profile web --dump-config
 ```
 
+> **DSH Desktop 用户注意**：打包的 `dsh` 命令可能拒绝初始化它还不认识的 profile（报 `ENOENT: lstat .../profiles/<name>`）。遇到时先执行一次 `dsh plugin --profile <name> add <任意包>` 创建 profile，再重复上面的 add；或者让 Agent 直接调用等价的 `dsh` bin。
+
+> **关于 peer 依赖警告**：pnpm 会打印 `[WARN] Issues with peer dependencies found`，因为 `react` 和 `@deepseek-ai/*` 包由 DSH 的符号链接依赖树（`$DSH_HOME/profiles/node_modules`）提供，而不是列在 profile 自己的 `dependencies` 里。这个警告是预期的、无害的——用下面的 `--dump-config` 验证即可。
+
 ### 2. 验证
 
-确认 `--dump-config` 的输出中出现 `@angel-gp/dsh-client-ui-gitpeek`，说明插件已进入组合层。
+确认 `--dump-config` 的输出中出现 `@angel-gp/dsh-client-ui-gitpeek`，说明插件已进入组合层：
+
+```
+# == @angel-gp/dsh-client-ui-gitpeek
+- id: gitpeek
+  name: '@angel-gp/dsh-client-ui-gitpeek'
+```
 
 ### 3. 重启
 
 手动重启 DSH Web Host。重启后 GitHub 标签页会出现在「轨迹」旁边。
+
+### 4. 最终验证
+
+在运行中的 GUI 里打开一个会话：会话标签页中应出现 **GitHub** 标签（在「轨迹」旁边），输入仓库（如 `owner/repo`）并点「刷新」后三列数据应正常加载。如果标签页没出现，请确认 GUI 运行的是你安装时的那个 profile（见第 0 步）。
 
 ## 获取 PAT token
 

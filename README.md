@@ -19,6 +19,19 @@ browser.
 
 ## Installation
 
+### 0. Prerequisites
+
+- `dsh` and `pnpm` on `PATH` (both ship with a DSH Desktop install; open a new
+  PowerShell so they resolve).
+- `git` on `PATH` that can reach github.com. `dsh plugin` forwards to pnpm,
+  which clones the repo from the `github:` specifier — over HTTPS, or over SSH
+  if you configure an `insteadOf` rewrite or proxy.
+- Know which profile your running DSH uses. The plugin is installed into the
+  profile you name on the command line, and it only appears in GUIs running
+  that same profile. **DSH Desktop defaults to the `desktop` profile**, which
+  is a different composition from `web` — install into the profile you
+  actually run, or switch your GUI to the profile you install into.
+
 ### 1. Install the plugin
 
 **Have an Agent install it (recommended)**
@@ -37,6 +50,9 @@ Send the following block to an Agent that can run terminal commands:
 > Do not shut down or restart the running DSH for me; remind me to restart the
 > DSH Web Host manually once the install is done.
 
+Replace `web` with the profile your GUI actually runs (for DSH Desktop that
+is usually `desktop`).
+
 **Install manually**
 
 Or run the same two commands yourself in PowerShell:
@@ -46,15 +62,41 @@ dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
 dsh --profile web --dump-config
 ```
 
+> **Note for DSH Desktop users**: the packaged `dsh` command may refuse to
+> initialize a profile it does not know yet (`ENOENT: lstat .../profiles/<name>`).
+> If so, create the profile first with
+> `dsh plugin --profile <name> add <any-package>`, then run the add again, or
+> ask the Agent to run the equivalent `dsh` bin directly.
+
+> **Note about the peer-dependency warning**: pnpm prints
+> `[WARN] Issues with peer dependencies found` because `react` and the
+> `@deepseek-ai/*` packages are provided by DSH's symlinked dependency tree
+> (`$DSH_HOME/profiles/node_modules`) rather than listed in the profile's own
+> `dependencies`. This warning is expected and harmless — verify with
+> `--dump-config` below.
+
 ### 2. Verify
 
 `@angel-gp/dsh-client-ui-gitpeek` appearing in the `--dump-config` output
-means the plugin entered the composed layer.
+means the plugin entered the composed layer:
+
+```
+# == @angel-gp/dsh-client-ui-gitpeek
+- id: gitpeek
+  name: '@angel-gp/dsh-client-ui-gitpeek'
+```
 
 ### 3. Restart
 
 Restart the DSH Web Host manually. The GitHub tab then shows up next to
 **Trajectory**.
+
+### 4. Final check
+
+Open a session in the running GUI: the **GitHub** tab should appear next to
+**Trajectory**, and entering a repository (e.g. `owner/repo`) followed by
+**Refresh** should load the three columns. If the tab is missing, make sure
+the GUI is running the profile you installed into (see step 0).
 
 ## Getting a PAT token
 
