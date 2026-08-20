@@ -19,6 +19,8 @@ browser.
   **Load more** button (30 runs / 30 releases / 100 commits per page)
 - Auto-refresh on entry: cached data shows immediately, then a background
   refresh runs once per session open — no stale page after a restart
+- Switching repositories auto-refreshes: clicking a saved repository chip
+  selects it and fetches its data immediately
 - Stale cache by design: opening a session shows the cached data immediately;
   data is re-fetched only when you click **Refresh** or on session entry
 - Localized UI (zh / en) following the DSH language preference
