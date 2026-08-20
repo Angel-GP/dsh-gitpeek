@@ -3,6 +3,7 @@
 [English](README.md) | [中文](README.zh.md)
 
 只读的 GitHub 数据查看面板，作为 DeepSeek Harness（DSH）会话的第三个标签页（紧跟「轨迹」之后），在浏览器中直接调用 GitHub REST API，并排展示 Actions 运行、Commits、Releases 三列数据。
+<img width="2141" height="1375" alt="image" src="https://github.com/user-attachments/assets/3951a391-5986-4d09-ae20-4d07d6c06d09" />
 
 ## 功能
 
