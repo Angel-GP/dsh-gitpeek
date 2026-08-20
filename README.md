@@ -196,6 +196,37 @@ still decrypt it. Please:
 - never reuse this token for other services or account operations;
 - revoke or rotate it from GitHub whenever it is no longer needed.
 
+## Persistence (why saved data can disappear)
+
+gitpeek keeps your saved repositories and encrypted PAT in the browser's
+`localStorage`, which is scoped per origin — **scheme + host + port**. If the
+DSH web server listens on a *different* port on each launch, every launch sees
+an empty `localStorage` and your saved data appears to vanish.
+
+- **`dsh --profile web` (plain Web)**: stable by default — it listens on a
+  fixed port (`3080` unless you pass `--port`). Saved data survives restarts.
+  Just keep using the same port every time.
+- **DSH Desktop**: **random port by default** (`dsh-desktop.port` unset ⇒ the
+  OS picks a free port on each start), so saved data is lost on every restart.
+
+### Fix for DSH Desktop
+
+Pin a fixed port in `$DSH_HOME/settings.yaml` (change `3080` if it collides
+with something else):
+
+```yaml
+dsh-desktop:
+  mode: advanced
+  port: 3080
+```
+
+Then fully quit and restart DSH Desktop. After the first restart the origin is
+stable, and saved repositories / PAT persist. Note that data saved under a
+previous random port cannot be migrated to the new one (browser security) —
+re-enter the repository and PAT once after switching.
+
+Rule of thumb: **always start DSH on the same port** and your data stays.
+
 ## License
 
 MIT
