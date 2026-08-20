@@ -69,6 +69,54 @@ dsh --profile web --dump-config
 
 在运行中的 GUI 里打开一个会话：会话标签页中应出现 **GitHub** 标签（在「轨迹」旁边），输入仓库（如 `owner/repo`）并点「刷新」后三列数据应正常加载。如果标签页没出现，请确认 GUI 运行的是你安装时的那个 profile（见第 0 步）。
 
+## 卸载
+
+完全卸载 = 从 profile 移除插件 + 重启使 GUI 生效 + 清除浏览器残留数据。
+
+### 1. 移除插件依赖
+
+```
+dsh plugin --profile web remove @angel-gp/dsh-client-ui-gitpeek
+```
+
+把 `web` 换成你安装时的 profile。`dsh plugin` 转发给 pnpm；成功后会自动把该包从 profile 的 `dsh.profile.bundles` 列表移除。
+
+> **DSH Desktop 用户注意**：和安装时一样，打包的 `dsh` 命令可能报 `ENOENT: lstat .../profiles/<name>`，遇到时直接调用等价的 `dsh` bin。
+
+验证插件已退出组合层：
+
+```
+dsh --profile web --dump-config
+```
+
+输出中应不再出现 `@angel-gp/dsh-client-ui-gitpeek`。
+
+### 2. 重启 DSH Web Host
+
+手动重启 DSH Web Host。组合层重新解析后 GitHub 标签页消失——这一步才是真正从运行中的 GUI 卸载。
+
+### 3. 清除浏览器残留数据（手动）
+
+插件把配置和缓存存在浏览器 `localStorage`，卸载后**不会**自动清理：
+
+- `dsh.ghwf.config` —— **含明文 PAT token**（务必清除）
+- `dsh.ghwf.cache` —— 缓存的 Actions / Commits / Releases 数据
+
+在 DSH 网页里打开 DevTools（F12）→ Console 执行：
+
+```js
+localStorage.removeItem("dsh.ghwf.config");
+localStorage.removeItem("dsh.ghwf.cache");
+```
+
+### 4.（可选）清理 pnpm store
+
+```
+pnpm store prune
+```
+
+删除 pnpm 内容寻址存储里不再被任何 profile 引用的包（包括 gitpeek 及其下载缓存），不影响其他 profile。如果之后还可能重装，可以跳过。
+
 ## 获取 PAT token
 
 插件用 PAT 提升 GitHub API 读取额度（匿名 60 次/小时，带 token 5000 次/小时）。只读查询，权限最小化即可：

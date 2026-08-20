@@ -98,6 +98,64 @@ Open a session in the running GUI: the **GitHub** tab should appear next to
 **Refresh** should load the three columns. If the tab is missing, make sure
 the GUI is running the profile you installed into (see step 0).
 
+## Uninstallation
+
+A full uninstall removes the plugin from the profile, drops it from the
+running GUI, and clears the data it left in the browser.
+
+### 1. Remove the dependency
+
+```
+dsh plugin --profile web remove @angel-gp/dsh-client-ui-gitpeek
+```
+
+Replace `web` with the profile you installed into. `dsh plugin` forwards to
+pnpm; on success it also removes the package from the profile's
+`dsh.profile.bundles` list automatically.
+
+> **Note for DSH Desktop users**: as with installation, the packaged `dsh`
+> command may fail with `ENOENT: lstat .../profiles/<name>`; run the
+> equivalent `dsh` bin directly in that case.
+
+Verify the plugin left the composed layer:
+
+```
+dsh --profile web --dump-config
+```
+
+`@angel-gp/dsh-client-ui-gitpeek` should no longer appear anywhere in the
+output.
+
+### 2. Restart DSH Web Host
+
+Restart the DSH Web Host manually. The GitHub tab disappears once the
+composition reloads — this is what actually removes it from the running GUI.
+
+### 3. Clear browser data (manual)
+
+The plugin stores its config and cache in the browser's `localStorage` and
+does **not** clean them up on uninstall:
+
+- `dsh.ghwf.config` — includes the PAT token in plain text (remove this!)
+- `dsh.ghwf.cache` — cached Actions / Commits / Releases data
+
+Open DevTools (F12) in the DSH page and run:
+
+```js
+localStorage.removeItem("dsh.ghwf.config");
+localStorage.removeItem("dsh.ghwf.cache");
+```
+
+### 4. (Optional) Prune the pnpm store
+
+```
+pnpm store prune
+```
+
+Drops packages no longer referenced by any profile from pnpm's
+content-addressable store (including gitpeek and its download cache). Other
+profiles are unaffected. Skip this if you may reinstall the plugin later.
+
 ## Getting a PAT token
 
 The plugin uses a PAT to raise the GitHub API rate limit (60 requests/hour
