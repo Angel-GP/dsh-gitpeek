@@ -1,85 +1,123 @@
 # @angel-gp/dsh-client-ui-gitpeek
 
-只读的 GitHub 数据查看面板，作为 DSH 会话的第三个标签页（紧跟「轨迹」之后），展示 Actions 运行、Commits、Releases 三列数据。
+[English](README.md) | [中文](README.zh.md)
 
-## 功能
+A read-only GitHub data panel for DeepSeek Harness (DSH): registers a third
+session tab (right after **Trajectory**) that shows Actions runs, Commits, and
+Releases side by side, fetched straight from the GitHub REST API in the
+browser.
 
-- 三列并排，各自独立滚动
-- 记忆多个仓库地址 + 单个 PAT token（存浏览器 localStorage）
-- 缓存不过期：打开直接显示缓存，点「刷新」才重新拉取
-- 国际化：界面文案随 DSH 语言偏好（zh / en）切换
-- 三列数据并行拉取，任一接口失败单独提示，互不影响
+## Features
 
-## 第一次使用：三步完成
+- Three columns side by side, each scrolling independently
+- Remembers multiple repositories plus one PAT token (kept in browser `localStorage`)
+- Stale cache by design: opening a session shows the cached data immediately;
+  data is re-fetched only when you click **Refresh**
+- Localized UI (zh / en) following the DSH language preference
+- The three columns are fetched in parallel; a failure in one column is
+  reported individually and does not hide the other two
 
-### 1. 安装插件
+## Installation
 
-**让 Agent 安装（推荐）**
+### 1. Install the plugin
 
-如果当前 Agent 可以执行终端命令，把下面这段话完整发送给它：
+**Have an Agent install it (recommended)**
 
-> 请为 DeepSeek Harness 的 web Profile 安装 gitpeek 插件。
+Send the following block to an Agent that can run terminal commands:
+
+> Please install the gitpeek plugin for DeepSeek Harness's web profile.
 >
-> 只执行下面两条命令，不要修改其他 Profile：
+> Run only these two commands; do not touch any other profile:
 > ```
 > dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
 > dsh --profile web --dump-config
 > ```
-> 确认输出中出现 `@angel-gp/dsh-client-ui-gitpeek` 后告诉我安装结果。
-> 不要替我关闭或重启正在运行的 DSH；安装完成后提醒我手动重启 DSH Web Host。
+> Confirm that `@angel-gp/dsh-client-ui-gitpeek` appears in the output, then
+> tell me the result.
+> Do not shut down or restart the running DSH for me; remind me to restart the
+> DSH Web Host manually once the install is done.
 
-Agent 应当返回安装结果，并明确告诉你配置中是否已经出现 `@angel-gp/dsh-client-ui-gitpeek`。
+**Install manually**
 
-**手动安装**
-
-也可以自己打开 PowerShell 执行：
+Or run the same two commands yourself in PowerShell:
 
 ```
 dsh plugin --profile web add github:Angel-GP/dsh-gitpeek#main
 dsh --profile web --dump-config
 ```
 
-### 2. 验证
+### 2. Verify
 
-确认 `--dump-config` 的输出中出现 `@angel-gp/dsh-client-ui-gitpeek`，说明插件已进入组合层。
+`@angel-gp/dsh-client-ui-gitpeek` appearing in the `--dump-config` output
+means the plugin entered the composed layer.
 
-### 3. 重启
+### 3. Restart
 
-手动重启 DSH Web Host。重启后 GitHub 标签页会出现在「轨迹」旁边。
+Restart the DSH Web Host manually. The GitHub tab then shows up next to
+**Trajectory**.
 
-## 获取 PAT token
+## Getting a PAT token
 
-插件用 PAT 提升 GitHub API 读取额度（匿名 60 次/小时，带 token 5000 次/小时）。只读查询，权限最小化即可：
+The plugin uses a PAT to raise the GitHub API rate limit (60 requests/hour
+anonymous, 5000/hour with a token). It only issues read queries, so keep the
+permissions minimal:
 
-1. 打开 https://github.com/settings/personal-access-tokens/new
-2. 选 **Fine-grained token**
-3. **Repository access** 选 **Only select repositories**，勾选你要查看的仓库
-4. **Permissions** 里给：
-   - **Actions → Read-only**（读 workflow runs）
-   - **Contents → Read-only**（读 releases、commits）
-   - **Metadata → Read-only**（通常自动包含）
-5. 生成后把 token 粘贴到插件的「PAT」输入框
+1. Open https://github.com/settings/personal-access-tokens/new
+2. Choose **Fine-grained token**
+3. Under **Repository access**, pick **Only select repositories** and check the
+   repositories you want to view
+4. Under **Permissions** grant:
+   - **Actions → Read-only** (workflow runs)
+   - **Contents → Read-only** (releases, commits)
+   - **Metadata → Read-only** (usually included automatically)
+5. Generate the token and paste it into the plugin's **PAT** field
 
-### 安全提示
+### Security note
 
-PAT 保存在浏览器 localStorage，任何能访问该浏览器（如同一用户的扩展、开发者工具、同源脚本）的人都能读到它。请：
+The PAT is stored in plain text in `localStorage`; anything that can read that
+browser (extensions, devtools, same-origin scripts, another user of the same
+profile) can read it. Please:
 
-- 只授予「只读 + 选定仓库」的最小权限（见上文）；
-- 不要把该 token 用于其他服务或账号操作；
-- 如需撤销，随时可以在 GitHub 上删除或轮换该 token。
+- grant only the minimal **read-only + selected repositories** permissions (above);
+- never reuse this token for other services or account operations;
+- revoke or rotate it from GitHub whenever it is no longer needed.
 
-## 开发
+## Development
 
 ```bash
-# 安装依赖（用于类型检查 / 本地开发）
+# Install dependencies (type-checking / local development)
 pnpm install
 
-# 语法检查
+# Syntax checks
 node --check lib/index.js
 node --check lib/client.js
 ```
 
-`lib/client.js` 是浏览器端插件入口（`window.__ModuleLoader__.load` 产物格式，不含 JSX / TypeScript，按 DSH client 插件约束手写）；`lib/index.js` 是 Host 侧空入口。`cordis.patch.yml` 声明本包作为 profile bundle patch 的挂载方式。界面文案集中在 `lib/client.js` 顶部的 `zh` / `en` 词典中，新增文案请同步维护两个词典。
+`lib/client.js` is the browser-side plugin entry (the
+`window.__ModuleLoader__.load` artifact format — no JSX / TypeScript, hand
+written to the DSH client-plugin constraints); `lib/index.js` is the empty
+host-side entry. `cordis.patch.yml` declares how the package mounts as a
+profile bundle patch. UI strings live in the `zh` / `en` dictionaries at the
+top of `lib/client.js`; keep both dictionaries in sync when adding copy.
+
+## Model experience
+
+None. The panel renders GitHub data in the browser; nothing from this package
+enters a model request.
+
+#### KV Cache impact
+
+None; the package neither assembles nor sends provider requests.
+
+## Known limitations and deferred items
+
+- **PAT stored in plain text in `localStorage`**: a conscious trade-off for a
+  local read-only panel; no `dsh-credentials` integration yet (see the
+  security note above).
+- **Fixed window per column**: at most 30 runs, 30 releases, and 100 commits,
+  with no pagination / "load more".
+- **Cache never expires**: cached data is shown until **Refresh** is clicked,
+  so the panel can briefly lag behind the live repository.
 
 ## License
 
