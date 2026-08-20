@@ -7,6 +7,8 @@
 - 三列并排，各自独立滚动
 - 记忆多个仓库地址 + 单个 PAT token（存浏览器 localStorage）
 - 缓存不过期：打开直接显示缓存，点「刷新」才重新拉取
+- 国际化：界面文案随 DSH 语言偏好（zh / en）切换
+- 三列数据并行拉取，任一接口失败单独提示，互不影响
 
 ## 第一次使用：三步完成
 
@@ -57,6 +59,27 @@ dsh --profile web --dump-config
    - **Contents → Read-only**（读 releases、commits）
    - **Metadata → Read-only**（通常自动包含）
 5. 生成后把 token 粘贴到插件的「PAT」输入框
+
+### 安全提示
+
+PAT 保存在浏览器 localStorage，任何能访问该浏览器（如同一用户的扩展、开发者工具、同源脚本）的人都能读到它。请：
+
+- 只授予「只读 + 选定仓库」的最小权限（见上文）；
+- 不要把该 token 用于其他服务或账号操作；
+- 如需撤销，随时可以在 GitHub 上删除或轮换该 token。
+
+## 开发
+
+```bash
+# 安装依赖（用于类型检查 / 本地开发）
+pnpm install
+
+# 语法检查
+node --check lib/index.js
+node --check lib/client.js
+```
+
+`lib/client.js` 是浏览器端插件入口（`window.__ModuleLoader__.load` 产物格式，不含 JSX / TypeScript，按 DSH client 插件约束手写）；`lib/index.js` 是 Host 侧空入口。`cordis.patch.yml` 声明本包作为 profile bundle patch 的挂载方式。界面文案集中在 `lib/client.js` 顶部的 `zh` / `en` 词典中，新增文案请同步维护两个词典。
 
 ## License
 
