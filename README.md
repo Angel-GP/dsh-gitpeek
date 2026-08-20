@@ -6,6 +6,8 @@ A read-only GitHub data panel for DeepSeek Harness (DSH): registers a third
 session tab (right after **Trajectory**) that shows Actions runs, Commits, and
 Releases side by side, fetched straight from the GitHub REST API in the
 browser.
+<img width="2141" height="1375" alt="image" src="https://github.com/user-attachments/assets/cb13c9d5-0b2d-442f-b1fe-1ed458902fce" />
+
 
 ## Features
 
